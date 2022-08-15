@@ -1,7 +1,6 @@
 use super::traverser::*;
 use crate::cursor::Cursor;
 use anyhow::Result;
-use std::time::Duration;
 use tree_sitter::*;
 
 pub struct File {
@@ -17,18 +16,6 @@ impl File {
         parser.set_language(language)?;
         let tree = parser.parse(&source, None).unwrap();
         return Ok(File::from_tree(name, tree, source));
-    }
-
-    pub fn from_url(url: &str, language: Language) -> Result<Self> {
-        let client = reqwest::blocking::Client::builder()
-            .user_agent("g4r1cI's super sweet scanner")
-            .timeout(Duration::from_secs(5))
-            .build()?;
-        let source = client.get(url).send()?.text()?;
-        let mut parser = Parser::new();
-        parser.set_language(language)?;
-        let tree = parser.parse(&source, None).unwrap();
-        Ok(File::from_tree(url, tree, source))
     }
 
     pub fn from_tree(name: &str, tree: Tree, source: String) -> Self {
@@ -58,4 +45,18 @@ impl File {
     pub fn traverse(&self, concrete: bool) -> Traversal {
         Traversal::from_file(self, concrete)
     }
+
+    // I dont think I want this
+
+    // pub fn from_url(url: &str, language: Language) -> Result<Self> {
+    //     let client = reqwest::blocking::Client::builder()
+    //         .user_agent("g4r1cI's super sweet scanner")
+    //         .timeout(Duration::from_secs(5))
+    //         .build()?;
+    //     let source = client.get(url).send()?.text()?;
+    //     let mut parser = Parser::new();
+    //     parser.set_language(language)?;
+    //     let tree = parser.parse(&source, None).unwrap();
+    //     Ok(File::from_tree(url, tree, source))
+    // }
 }
