@@ -10,7 +10,7 @@ struct Arguments {
     #[clap(value_parser)]
     file: String,
 
-    // language to parse
+    /// language to parse (php, js)
     #[clap(value_parser)]
     language: String,
 
