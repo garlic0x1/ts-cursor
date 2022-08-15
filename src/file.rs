@@ -1,5 +1,5 @@
 use super::traverser::*;
-use crate::cursor::Cursor;
+use crate::cursor::{Cursor, STKind};
 use anyhow::Result;
 use tree_sitter::*;
 
@@ -38,12 +38,12 @@ impl File {
         self.tree.walk()
     }
 
-    pub fn cursor(&self, concrete: bool) -> Cursor {
-        Cursor::from_cursor(self.raw_cursor(), self, concrete)
+    pub fn cursor(&self, stkind: STKind) -> Cursor {
+        Cursor::from_cursor(self.raw_cursor(), self, stkind)
     }
 
-    pub fn traverse(&self, concrete: bool) -> Traversal {
-        Traversal::from_file(self, concrete)
+    pub fn traverse(&self, stkind: STKind) -> Traversal {
+        Traversal::from_file(self, stkind)
     }
 
     // I dont think I want this

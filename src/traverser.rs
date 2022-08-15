@@ -1,3 +1,4 @@
+use crate::cursor::STKind::*;
 use crate::cursor::*;
 use crate::file::*;
 
@@ -6,45 +7,45 @@ pub struct Traversal<'a> {
     start: Cursor<'a>,
     last: Option<Cursor<'a>>,
     blocks: Vec<&'a str>,
-    concrete: bool,
+    stkind: STKind,
     visited: bool,
     end: bool,
 }
 
 impl<'a> Traversal<'a> {
     /// abstract traversal (only named nodes)
-    pub fn from_cursor(cursor: &'a Cursor<'a>, concrete: bool) -> Self {
+    pub fn from_cursor(cursor: &'a Cursor<'a>, stkind: STKind) -> Self {
         Self {
-            start: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), true),
+            start: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), Concrete),
             last: None,
-            cursor: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), true),
+            cursor: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), Concrete),
             visited: false,
-            concrete,
+            stkind,
             end: false,
             blocks: Vec::new(),
         }
     }
 
-    pub fn from_file(file: &'a File, concrete: bool) -> Self {
+    pub fn from_file(file: &'a File, stkind: STKind) -> Self {
         Self {
-            start: file.cursor(true),
+            start: file.cursor(STKind::Concrete),
             last: None,
-            cursor: file.cursor(true),
+            cursor: file.cursor(STKind::Concrete),
             visited: false,
-            concrete,
+            stkind,
             end: false,
             blocks: Vec::new(),
         }
     }
 
     /// abstract block traversal, does not crawl into specified node kinds
-    pub fn from_block(cursor: &'a Cursor<'a>, blocks: Vec<&'a str>, concrete: bool) -> Self {
+    pub fn from_block(cursor: &'a Cursor<'a>, blocks: Vec<&'a str>, stkind: STKind) -> Self {
         Self {
-            start: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), true),
+            start: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), Concrete),
             last: None,
-            cursor: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), true),
+            cursor: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), Concrete),
             visited: false,
-            concrete,
+            stkind,
             end: false,
             blocks,
         }
@@ -120,7 +121,7 @@ impl<'a> Iterator for Traversal<'a> {
         while let Some(item) = self.step() {
             match &item {
                 Order::Enter(cur) => {
-                    if self.concrete || cur.raw_cursor().node().is_named() {
+                    if self.stkind == Concrete || cur.raw_cursor().node().is_named() {
                         if self.blocks.contains(&cur.kind()) {
                             self.pass();
                         }
@@ -128,7 +129,7 @@ impl<'a> Iterator for Traversal<'a> {
                     }
                 }
                 Order::Leave(cur) => {
-                    if self.concrete || cur.raw_cursor().node().is_named() {
+                    if self.stkind == Concrete || cur.raw_cursor().node().is_named() {
                         return Some(item);
                     }
                 }

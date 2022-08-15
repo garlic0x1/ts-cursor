@@ -3,12 +3,19 @@ use crate::tracer::Trace;
 use crate::traverser::*;
 use std::hash::{Hash, Hasher};
 use tree_sitter::*;
+use STKind::*;
+
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum STKind {
+    Abstract,
+    Concrete,
+}
 
 #[derive(Clone)]
 pub struct Cursor<'a> {
     cursor: TreeCursor<'a>,
     file: &'a File,
-    concrete: bool,
+    stkind: STKind,
 }
 
 /// empty trait means it uses partial_eq
@@ -41,31 +48,31 @@ impl<'a> std::fmt::Debug for Cursor<'a> {
 
 impl<'a> Cursor<'a> {
     /// wrap a cursor with its associated file
-    pub fn from_cursor(cursor: TreeCursor<'a>, file: &'a File, concrete: bool) -> Self {
+    pub fn from_cursor(cursor: TreeCursor<'a>, file: &'a File, stkind: STKind) -> Self {
         Self {
             cursor,
             file,
-            concrete,
+            stkind,
         }
     }
 
     /// create a cursor at the root node of the file
-    pub fn from_file(file: &'a File, concrete: bool) -> Self {
+    pub fn from_file(file: &'a File, stkind: STKind) -> Self {
         Self {
             cursor: file.raw_cursor(),
             file,
-            concrete,
+            stkind,
         }
     }
 
     /// traverse inside current node
-    pub fn traverse(&self, concrete: bool) -> Traversal {
-        Traversal::from_cursor(&self, concrete)
+    pub fn traverse(&self, stkind: STKind) -> Traversal {
+        Traversal::from_cursor(&self, stkind)
     }
 
     /// traverse without crawling into break nodes
-    pub fn traverse_block(&self, breaks: Vec<&'a str>, concrete: bool) -> Traversal {
-        Traversal::from_block(&self, breaks, concrete)
+    pub fn traverse_block(&self, breaks: Vec<&'a str>, stkind: STKind) -> Traversal {
+        Traversal::from_block(&self, breaks, stkind)
     }
 
     /// trace up the syntax tree
@@ -102,7 +109,7 @@ impl<'a> Cursor<'a> {
 
     pub fn goto_first_child(&mut self) -> bool {
         let mut ret = self.cursor.goto_first_child();
-        if !self.concrete {
+        if self.stkind == Abstract {
             while !self.raw_cursor().node().is_named() {
                 ret = self.cursor.goto_next_sibling();
             }
@@ -112,7 +119,7 @@ impl<'a> Cursor<'a> {
 
     pub fn goto_next_sibling(&mut self) -> bool {
         let mut ret = self.cursor.goto_next_sibling();
-        if !self.concrete {
+        if self.stkind == Abstract {
             while !self.raw_cursor().node().is_named() {
                 ret = self.cursor.goto_next_sibling();
             }
@@ -170,7 +177,7 @@ impl<'a> Cursor<'a> {
         // if deep crawl depth first
         // this finds weird things like object names that dont have a direct name child
         if deep {
-            for motion in self.traverse(false) {
+            for motion in self.traverse(Abstract) {
                 if let Order::Enter(cur) = motion {
                     if cur.kind() == "name" {
                         return Some(cur.to_string());

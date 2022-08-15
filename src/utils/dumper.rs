@@ -13,11 +13,11 @@ impl<'a> Dumper<'a> {
     }
 
     /// associated function to dump individual cursors
-    pub fn dump_cursor(cursor: Cursor<'a>, concrete: bool) -> String {
+    pub fn dump_cursor(cursor: Cursor<'a>, stkind: STKind) -> String {
         let mut string = String::new();
         let mut depth = 0;
 
-        let trav = Traversal::from_cursor(&cursor, concrete);
+        let trav = Traversal::from_cursor(&cursor, stkind);
         for cur in trav {
             match cur {
                 Order::Enter(cur) => {
@@ -41,12 +41,11 @@ impl<'a> Dumper<'a> {
         string
     }
 
-    pub fn dump(&self, concrete: bool) -> String {
-        println!("dumping");
+    pub fn dump(&self, stkind: STKind) -> String {
         let mut string = String::new();
 
         for file in self.files.iter() {
-            string.push_str(&Dumper::dump_cursor(file.cursor(true), concrete));
+            string.push_str(&Dumper::dump_cursor(file.cursor(STKind::Concrete), stkind));
         }
 
         string
