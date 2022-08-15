@@ -25,11 +25,11 @@ impl<'a> Traversal<'a> {
         }
     }
 
-    pub fn from_file(file: &'a File) -> Self {
+    pub fn from_file(file: &'a File, concrete: bool) -> Self {
         Self {
-            start: file.cursor(),
+            start: file.cursor(concrete),
             last: None,
-            cursor: file.cursor(),
+            cursor: file.cursor(concrete),
             visited: false,
             concrete: false,
             end: false,

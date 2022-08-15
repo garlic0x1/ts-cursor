@@ -51,11 +51,11 @@ impl File {
         self.tree.walk()
     }
 
-    pub fn cursor(&self) -> Cursor {
-        Cursor::new(self.raw_cursor(), self)
+    pub fn cursor(&self, concrete: bool) -> Cursor {
+        Cursor::from_cursor(self.raw_cursor(), self, concrete)
     }
 
-    pub fn traverse(&self) -> Traversal {
-        Traversal::from_file(self)
+    pub fn traverse(&self, concrete: bool) -> Traversal {
+        Traversal::from_file(self, concrete)
     }
 }
