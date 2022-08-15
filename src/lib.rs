@@ -14,7 +14,7 @@ mod tests {
     #[test]
     fn test_php() {
         let file = File::new("./test_php/test_class.php", tree_sitter_php::language()).unwrap();
-        let mut cursor = Cursor::from_file(&file, true);
+        let mut cursor = Cursor::from_file(&file, STKind::Concrete);
 
         assert_eq!(cursor.goto_first_child(), true);
         assert_eq!(cursor.goto_first_child(), false);
@@ -30,7 +30,7 @@ mod tests {
             tree_sitter_javascript::language(),
         )
         .unwrap();
-        let mut cursor = Cursor::from_file(&file, true);
+        let mut cursor = Cursor::from_file(&file, STKind::Concrete);
 
         assert_eq!(cursor.goto_first_child(), true);
         eprintln!("{}", cursor.kind());

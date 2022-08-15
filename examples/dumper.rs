@@ -1,6 +1,6 @@
 use anyhow::{bail, Result};
 use clap::Parser;
-use ts_cursor::{file::File, utils::dumper::*};
+use ts_cursor::{cursor::STKind::*, file::File, utils::dumper::*};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -23,23 +23,18 @@ fn main() -> Result<()> {
     let args = Arguments::parse();
 
     let language = match args.language.as_str() {
-        "php" => Some(tree_sitter_php::language()),
-        "js" | "javascript" => Some(tree_sitter_javascript::language()),
-        _ => None,
+        "php" => tree_sitter_php::language(),
+        "js" | "javascript" => tree_sitter_javascript::language(),
+        _ => bail!("unrecognized language {}", args.language),
     };
 
-    if let None = language {
-        bail!("unrecognized language {}", args.language);
-    }
-    let language = language.unwrap();
-
-    // let source_code = std::fs::read_to_string(args.file.clone())
-    //     .expect(&format!("failed to read file {}", args.file));
     let file = File::new(&args.file, language)?;
 
-    let s = Dumper::new(vec![&file]).dump(args.concrete);
+    let s = match args.concrete {
+        true => Dumper::new(vec![&file]).dump(Concrete),
+        false => Dumper::new(vec![&file]).dump(Abstract),
+    };
 
     println!("{s}");
-
     Ok(())
 }
