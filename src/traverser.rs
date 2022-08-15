@@ -13,13 +13,13 @@ pub struct Traversal<'a> {
 
 impl<'a> Traversal<'a> {
     /// abstract traversal (only named nodes)
-    pub fn new(cursor: &Cursor<'a>) -> Self {
+    pub fn from_cursor(cursor: &'a Cursor<'a>, concrete: bool) -> Self {
         Self {
-            start: cursor.clone(),
+            start: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), true),
             last: None,
-            cursor: cursor.clone(),
+            cursor: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), true),
             visited: false,
-            concrete: false,
+            concrete,
             end: false,
             blocks: Vec::new(),
         }
@@ -27,39 +27,26 @@ impl<'a> Traversal<'a> {
 
     pub fn from_file(file: &'a File, concrete: bool) -> Self {
         Self {
-            start: file.cursor(concrete),
+            start: file.cursor(true),
             last: None,
-            cursor: file.cursor(concrete),
+            cursor: file.cursor(true),
             visited: false,
-            concrete: false,
+            concrete,
             end: false,
             blocks: Vec::new(),
         }
     }
 
     /// abstract block traversal, does not crawl into specified node kinds
-    pub fn new_block(cursor: &Cursor<'a>, blocks: Vec<&'a str>) -> Self {
+    pub fn from_block(cursor: &'a Cursor<'a>, blocks: Vec<&'a str>, concrete: bool) -> Self {
         Self {
-            start: cursor.clone(),
+            start: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), true),
             last: None,
-            cursor: cursor.clone(),
+            cursor: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), true),
             visited: false,
-            concrete: false,
+            concrete,
             end: false,
             blocks,
-        }
-    }
-
-    /// concrete traversal (all nodes)
-    pub fn new_concrete(cursor: &Cursor<'a>) -> Self {
-        Self {
-            start: cursor.clone(),
-            last: None,
-            cursor: cursor.clone(),
-            visited: false,
-            concrete: true,
-            end: false,
-            blocks: Vec::new(),
         }
     }
 

@@ -59,13 +59,13 @@ impl<'a> Cursor<'a> {
     }
 
     /// traverse inside current node
-    pub fn traverse(&self) -> Traversal {
-        Traversal::new(&self)
+    pub fn traverse(&self, concrete: bool) -> Traversal {
+        Traversal::from_cursor(&self, concrete)
     }
 
     /// traverse without crawling into break nodes
-    pub fn traverse_block(&self, breaks: Vec<&'a str>) -> Traversal {
-        Traversal::new_block(&self, breaks)
+    pub fn traverse_block(&self, breaks: Vec<&'a str>, concrete: bool) -> Traversal {
+        Traversal::from_block(&self, breaks, concrete)
     }
 
     /// trace up the syntax tree
@@ -75,6 +75,10 @@ impl<'a> Cursor<'a> {
 
     pub fn filename(&self) -> String {
         self.file.name()
+    }
+
+    pub fn file(&self) -> &File {
+        &self.file
     }
 
     pub fn kind(&self) -> &str {
@@ -166,7 +170,7 @@ impl<'a> Cursor<'a> {
         // if deep crawl depth first
         // this finds weird things like object names that dont have a direct name child
         if deep {
-            for motion in self.traverse() {
+            for motion in self.traverse(false) {
                 if let Order::Enter(cur) = motion {
                     if cur.kind() == "name" {
                         return Some(cur.to_string());

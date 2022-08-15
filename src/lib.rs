@@ -2,6 +2,7 @@ pub mod cursor;
 pub mod file;
 pub mod tracer;
 pub mod traverser;
+pub mod utils;
 
 #[cfg(test)]
 mod tests {
@@ -23,5 +24,17 @@ mod tests {
     }
 
     #[test]
-    fn test_javascript() {}
+    fn test_javascript() {
+        let file = File::new(
+            "./test_javascript/test_example.js",
+            tree_sitter_javascript::language(),
+        )
+        .unwrap();
+        let mut cursor = Cursor::from_file(&file, true);
+
+        assert_eq!(cursor.goto_first_child(), true);
+        eprintln!("{}", cursor.kind());
+        assert_eq!(cursor.goto_next_sibling(), true);
+        assert_eq!(cursor.name(false), Some("Data".into()));
+    }
 }
