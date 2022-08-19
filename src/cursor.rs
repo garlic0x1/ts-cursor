@@ -15,7 +15,7 @@ pub enum STKind {
 pub struct Cursor<'a> {
     cursor: TreeCursor<'a>,
     file: &'a File,
-    stkind: STKind,
+    pub stkind: STKind,
 }
 
 /// empty trait means it uses partial_eq

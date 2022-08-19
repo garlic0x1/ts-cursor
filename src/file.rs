@@ -10,12 +10,12 @@ pub struct File {
 }
 
 impl File {
-    pub fn new(name: &str, language: Language) -> Result<Self> {
-        let source = std::fs::read_to_string(name)?;
+    pub fn new(filename: &str, language: Language) -> Result<Self> {
+        let source = std::fs::read_to_string(filename)?;
         let mut parser = Parser::new();
         parser.set_language(language)?;
         let tree = parser.parse(&source, None).unwrap();
-        return Ok(File::from_tree(name, tree, source));
+        return Ok(File::from_tree(filename, tree, source));
     }
 
     pub fn from_tree(name: &str, tree: Tree, source: String) -> Self {
@@ -45,18 +45,4 @@ impl File {
     pub fn traverse(&self, stkind: STKind) -> Traversal {
         Traversal::from_file(self, stkind)
     }
-
-    // I dont think I want this
-
-    // pub fn from_url(url: &str, language: Language) -> Result<Self> {
-    //     let client = reqwest::blocking::Client::builder()
-    //         .user_agent("g4r1cI's super sweet scanner")
-    //         .timeout(Duration::from_secs(5))
-    //         .build()?;
-    //     let source = client.get(url).send()?.text()?;
-    //     let mut parser = Parser::new();
-    //     parser.set_language(language)?;
-    //     let tree = parser.parse(&source, None).unwrap();
-    //     Ok(File::from_tree(url, tree, source))
-    // }
 }
