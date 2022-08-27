@@ -3,6 +3,7 @@ use crate::cursor::{Cursor, STKind};
 use anyhow::Result;
 use tree_sitter::*;
 
+#[derive(Clone)]
 pub struct File {
     name: String,
     source: String,
@@ -12,6 +13,13 @@ pub struct File {
 impl File {
     pub fn new(filename: &str, language: Language) -> Result<Self> {
         let source = std::fs::read_to_string(filename)?;
+        let mut parser = Parser::new();
+        parser.set_language(language)?;
+        let tree = parser.parse(&source, None).unwrap();
+        return Ok(File::from_tree(filename, tree, source));
+    }
+
+    pub fn from_string(filename: &str, source: String, language: Language) -> Result<Self> {
         let mut parser = Parser::new();
         parser.set_language(language)?;
         let tree = parser.parse(&source, None).unwrap();

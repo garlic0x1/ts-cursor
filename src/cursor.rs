@@ -157,6 +157,8 @@ impl<'a> Cursor<'a> {
     }
 
     /// try to find the name of current node
+    /// if true, crawl depth first until name
+    /// if false, only search one layer
     pub fn name(&self, deep: bool) -> Option<String> {
         // if name, return
         if self.kind() == "name" {

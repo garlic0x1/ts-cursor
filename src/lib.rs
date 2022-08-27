@@ -4,12 +4,14 @@ pub mod tracer;
 pub mod traverser;
 pub mod utils;
 
+pub use cursor::*;
+pub use tracer::*;
+pub use traverser::*;
+
 #[cfg(test)]
 mod tests {
     use crate::cursor::*;
     use crate::file::*;
-    // use crate::tracer::*;
-    // use crate::traverser::*;
 
     #[test]
     fn test_php() {

@@ -14,16 +14,19 @@ pub struct Traversal<'a> {
 
 impl<'a> Traversal<'a> {
     /// abstract traversal (only named nodes)
-    pub fn from_cursor(cursor: &'a Cursor<'a>, stkind: STKind) -> Self {
-        Self {
-            start: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), Concrete),
+    /// will switch cursor to Concrete
+    pub fn from_cursor(cursor: &Cursor<'a>, stkind: STKind) -> Self {
+        let mut s = Self {
+            start: cursor.clone(),
             last: None,
-            cursor: Cursor::from_cursor(cursor.raw_cursor(), cursor.file(), Concrete),
+            cursor: cursor.clone(),
             visited: false,
             stkind,
             end: false,
             blocks: Vec::new(),
-        }
+        };
+        s.cursor.stkind = STKind::Concrete;
+        s
     }
 
     pub fn from_file(file: &'a File, stkind: STKind) -> Self {
